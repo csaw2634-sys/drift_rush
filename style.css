@@ -131,3 +131,28 @@ kbd{font-family:inherit;font-weight:700;background:var(--panel);border:1px solid
 .btns .s{background:var(--chip);color:var(--chip-ink)}
 @media (max-width:560px){.karts{grid-template-columns:repeat(2,1fr)}#mini{width:110px;height:110px}#board{display:none}.card{padding:20px}#speed{bottom:auto;top:110px;left:14px}#speed b{font-size:40px}#speed span{font-size:11px}}
 @media (prefers-reduced-motion:reduce){#flash{transition:none}}
+
+/* ---------- online ---------- */
+.field{width:100%;border:2px solid var(--line);background:var(--chip);color:var(--chip-ink);border-radius:14px;padding:12px 14px;font-size:16px;font-family:inherit}
+.field:focus-visible{outline:3px solid var(--accent-2);outline-offset:1px}
+.joinrow{display:flex;gap:8px}
+.joinrow .field{flex:1;text-transform:uppercase;letter-spacing:6px;font-weight:700;text-align:center}
+.joinrow button{border:none;border-radius:14px;padding:0 22px;font-size:18px;background:var(--panel-ink);color:var(--panel)}
+.netstatus{min-height:1.4em;font-size:14px;color:var(--accent);margin-top:10px}
+.note-box{background:var(--chip);color:var(--chip-ink);border-radius:14px;padding:12px 14px;font-size:13px;line-height:1.6;margin-top:12px}
+.lobby-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.code{font-size:clamp(46px,9vw,72px);letter-spacing:8px;line-height:1;color:var(--accent)}
+.code-label{font-size:13px;color:var(--muted)}
+.copy{border:2px solid var(--line);background:var(--chip);color:var(--chip-ink);border-radius:999px;padding:8px 14px;font-size:14px}
+.slots{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:14px}
+.slotrow{display:flex;align-items:center;gap:8px;background:var(--chip);color:var(--chip-ink);border-radius:12px;padding:9px 12px;font-size:14px;min-width:0}
+.slotrow b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slotrow small{margin-left:auto;color:var(--muted);font-size:12px;white-space:nowrap}
+.slotrow em{font-style:normal;font-size:11px;background:var(--accent);color:#fff;border-radius:999px;padding:1px 8px}
+.slotrow.empty{opacity:.6}
+.slotrow.me{box-shadow:inset 0 0 0 2px var(--accent)}
+.dot{width:14px;height:14px;border-radius:50%;background:var(--line);flex:none}
+.seg:disabled{opacity:.55;cursor:default}
+.go:disabled{opacity:.5;box-shadow:none;cursor:default}
+#board small,.res-table small.ai{font-size:10px;opacity:.7;border:1px solid currentColor;border-radius:4px;padding:0 3px}
+@media (max-width:560px){.slots{grid-template-columns:1fr}}

@@ -47,12 +47,13 @@
     <div class="card">
       <div class="title"><h1 class="disp">드리프트 러시</h1><div class="streak"></div></div>
       <div class="tabs" role="tablist">
-        <button class="tab disp" role="tab" id="tabRaceBtn" aria-selected="true" type="button">레이스</button>
+        <button class="tab disp" role="tab" id="tabRaceBtn" aria-selected="true" type="button">혼자 달리기</button>
+        <button class="tab disp" role="tab" id="tabOnlineBtn" aria-selected="false" type="button">같이 달리기</button>
         <button class="tab disp" role="tab" id="tabGarageBtn" aria-selected="false" type="button">차고</button>
         <div class="wallet disp" id="wallet"><small>보유 포인트</small>0 P</div>
       </div>
       <div id="tabRace">
-        <p class="lead">코너에서 드리프트로 게이지를 채우고, 모은 부스터로 직선을 찢어라. 4차선 서킷에서 상대 카트 3대와 겨루는 레이스야.</p>
+        <p class="lead">코너에서 드리프트로 게이지를 채우고, 모은 부스터로 직선을 찢어라. 4차선 서킷에서 8대가 함께 달려.</p>
         <div class="label">내 카트</div>
         <div class="karts" id="karts"></div>
         <div class="label">바퀴 수</div>
@@ -60,7 +61,7 @@
         <div class="label">상대 실력</div>
         <div class="row" id="diff"></div>
         <button class="go disp" id="start" type="button">레이스 시작</button>
-        <p class="rule">완주하면 순위에 따라 포인트를 받아. 바퀴당 1위 100P, 2위 70P, 3위 45P, 4위 25P이고, 상대 실력이 높을수록 보너스가 붙어. 모은 포인트로 차고에서 더 빠른 카트를 살 수 있어.</p>
+        <p class="rule">완주하면 순위에 따라 포인트를 받아. 바퀴당 1위 100P, 2위 80P, 3위 65P, 4위 50P, 5위 40P, 6위 30P, 7위 20P, 8위 10P이고, 상대 실력이 높을수록 보너스가 붙어.</p>
         <div class="keys">
           <div><kbd>↑</kbd><kbd>↓</kbd> 가속 · 브레이크</div>
           <div><kbd>←</kbd><kbd>→</kbd> 방향</div>
@@ -71,10 +72,41 @@
         </div>
         <div class="best" id="best"></div>
       </div>
+      <div id="tabOnline" hidden>
+        <p class="lead">친구들과 최대 8명까지 같이 달릴 수 있어. 레이스는 항상 8대로 출발하고, 빈자리는 컴퓨터가 채워.</p>
+        <div class="label"><label for="nick">내 이름</label></div>
+        <input class="field" id="nick" maxlength="10" placeholder="친구들에게 보일 이름" autocomplete="off">
+        <button class="go disp" id="create" type="button">방 만들기</button>
+        <div class="label"><label for="code">방 코드로 참가</label></div>
+        <div class="joinrow"><input class="field" id="code" maxlength="4" placeholder="ABCD" autocomplete="off"><button class="disp" id="join" type="button">참가</button></div>
+        <div class="netstatus" id="netStatus" role="status"></div>
+        <div class="note-box" id="onlineNote" hidden>지금은 파일을 직접 열어서 온라인 모드를 쓸 수 없어. Render에 서버를 올린 뒤, 그 주소로 접속하면 같이 달릴 수 있어.</div>
+        <p class="rule">카트는 혼자 달리기 탭이나 차고에서 고른 카트로 출전해. 대기실에서도 바꿀 수 있어.</p>
+      </div>
       <div id="tabGarage" hidden>
         <p class="lead" style="margin-bottom:0">비싼 카트일수록 최고 속도, 가속, 핸들링, 드리프트 충전이 좋아지고, 드리프트에서 빠져나올 때 더 부드럽게 속도를 이어가.</p>
         <div class="garage" id="garage"></div>
       </div>
+    </div>
+  </div>
+
+  <div class="screen" id="lobby">
+    <div class="card">
+      <div class="lobby-head">
+        <div><div class="code-label">방 코드</div><div class="code disp" id="roomCode">----</div></div>
+        <button class="copy" id="copyCode" type="button">초대 링크 복사</button>
+      </div>
+      <div class="label">참가자 <span id="lobbyCount"></span></div>
+      <div class="slots" id="slots"></div>
+      <div class="label">내 카트</div>
+      <div class="karts" id="lobbyKarts"></div>
+      <div class="label">바퀴 수 <small>(방장만 바꿀 수 있어)</small></div>
+      <div class="row" id="lobbyLaps"></div>
+      <div class="label">컴퓨터 실력</div>
+      <div class="row" id="lobbyDiff"></div>
+      <p class="rule" id="lobbyWait"></p>
+      <button class="go disp" id="lobbyStart" type="button">레이스 시작</button>
+      <div class="btns"><button class="s disp" id="lobbyLeave" type="button">방 나가기</button></div>
     </div>
   </div>
 

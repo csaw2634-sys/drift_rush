@@ -1,0 +1,15 @@
+{
+  "name": "drift-rush-online",
+  "version": "1.0.0",
+  "description": "친구들과 최대 8명이 같이 달리는 브라우저 카트 레이싱 게임",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "8.18.0"
+  }
+}
