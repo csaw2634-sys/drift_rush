@@ -5,15 +5,15 @@ const $=id=>document.getElementById(id);
 
 /* ---------- options ---------- */
 const KARTS=[
-  {id:'red',name:'레드 썬더',price:0,body:0xff4d2e,trim:0xffc531,suit:0x2b2f45,helmet:0xffffff,st:{spd:1,acc:1,hnd:1,chg:1}},
-  {id:'blue',name:'블루 웨이브',price:0,body:0x2f7cff,trim:0xe8f1ff,suit:0x1c2340,helmet:0xffd23f,st:{spd:1,acc:1,hnd:1,chg:1}},
-  {id:'yellow',name:'옐로 비',price:0,body:0xffc531,trim:0x222222,suit:0x3a2a12,helmet:0xff6aa2,st:{spd:1,acc:1,hnd:1,chg:1}},
-  {id:'mint',name:'민트 젯',price:0,body:0x22c7a0,trim:0xffffff,suit:0x15322c,helmet:0x7c5cff,st:{spd:1,acc:1,hnd:1,chg:1}},
-  {id:'fin',name:'스트리트 핀',price:600,body:0x9b5cff,trim:0xffffff,suit:0x241a3d,helmet:0x9b5cff,fin:true,st:{spd:1.03,acc:1.05,hnd:1.04,chg:1.06}},
-  {id:'blaze',name:'블레이즈 X',price:1500,body:0xff2e6a,trim:0x1b1e28,suit:0x1b1e28,helmet:0xffc531,fin:true,wide:true,st:{spd:1.06,acc:1.08,hnd:1.06,chg:1.12}},
-  {id:'aurora',name:'오로라 GT',price:3000,body:0x18d0ff,trim:0xeafffb,suit:0x0e2a3a,helmet:0xffffff,wide:true,glow:0x18d0ff,st:{spd:1.09,acc:1.11,hnd:1.08,chg:1.18}},
-  {id:'phantom',name:'팬텀 R',price:5000,body:0x2a2d3a,trim:0xff3b3b,suit:0x111318,helmet:0x2a2d3a,fin:true,wide:true,glow:0xff3b3b,st:{spd:1.12,acc:1.14,hnd:1.1,chg:1.24}},
-  {id:'solar',name:'솔라 플레어',price:8000,body:0xffb21a,trim:0xff4d2e,suit:0x3a1a08,helmet:0xffffff,fin:true,wide:true,glow:0xffd84a,st:{spd:1.16,acc:1.18,hnd:1.13,chg:1.3}}
+  {id:'red',style:'buggy',name:'레드 썬더',price:0,body:0xff4d2e,trim:0xffc531,suit:0x2b2f45,helmet:0xffffff,st:{spd:1,acc:1,hnd:1,chg:1}},
+  {id:'blue',style:'wave',name:'블루 웨이브',price:0,body:0x2f7cff,trim:0xe8f1ff,suit:0x1c2340,helmet:0xffd23f,st:{spd:1,acc:1,hnd:1,chg:1}},
+  {id:'yellow',style:'bee',name:'옐로 비',price:0,body:0xffc531,trim:0x222222,suit:0x3a2a12,helmet:0xff6aa2,st:{spd:1,acc:1,hnd:1,chg:1}},
+  {id:'mint',style:'jet',name:'민트 젯',price:0,body:0x22c7a0,trim:0xffffff,suit:0x15322c,helmet:0x7c5cff,st:{spd:1,acc:1,hnd:1,chg:1}},
+  {id:'fin',style:'shark',name:'스트리트 핀',price:600,body:0x9b5cff,trim:0xffffff,suit:0x241a3d,helmet:0x9b5cff,st:{spd:1.03,acc:1.05,hnd:1.04,chg:1.06}},
+  {id:'blaze',style:'blade',name:'블레이즈 X',price:1500,body:0xff2e6a,trim:0x1b1e28,suit:0x1b1e28,helmet:0xffc531,glow:0xff9a3c,st:{spd:1.06,acc:1.08,hnd:1.06,chg:1.12}},
+  {id:'aurora',style:'gt',name:'오로라 GT',price:3000,body:0x18d0ff,trim:0xeafffb,suit:0x0e2a3a,helmet:0xffffff,glow:0x18d0ff,st:{spd:1.09,acc:1.11,hnd:1.08,chg:1.18}},
+  {id:'phantom',style:'armor',name:'팬텀 R',price:5000,body:0x2a2d3a,trim:0xff3b3b,suit:0x111318,helmet:0x2a2d3a,glow:0xff3b3b,st:{spd:1.12,acc:1.14,hnd:1.1,chg:1.24}},
+  {id:'solar',style:'sun',name:'솔라 플레어',price:8000,body:0xffb21a,trim:0xff4d2e,suit:0x3a1a08,helmet:0xffffff,glow:0xffd84a,st:{spd:1.16,acc:1.18,hnd:1.13,chg:1.3}}
 ];
 /* drift exit: ext 1.0 (starter) .. 1.3 (top) */
 const EXT={red:1,blue:1,yellow:1,mint:1,fin:1.06,blaze:1.12,aurora:1.18,phantom:1.24,solar:1.3};
@@ -172,19 +172,136 @@ const PADS=[];
 
 /* ---------- karts ---------- */
 const KSCALE=.75;
-function makeKart(k){
+/* 공용 도형 도우미 */
+function sideProf(pts,w){ /* 옆모습(z,y) 윤곽을 x 방향으로 두께 w만큼 */
+  const s=new THREE.Shape();pts.forEach(([z,y],i)=>i?s.lineTo(z,y):s.moveTo(z,y));
+  const geo=new THREE.ExtrudeGeometry(s,{depth:w,bevelEnabled:false});geo.rotateY(-Math.PI/2);geo.translate(w/2,0,0);return geo;}
+function planProf(pts,h){ /* 위에서 본(x,z) 윤곽을 위로 두께 h만큼 */
+  const s=new THREE.Shape();pts.forEach(([x,z],i)=>i?s.lineTo(x,-z):s.moveTo(x,-z));
+  const geo=new THREE.ExtrudeGeometry(s,{depth:h,bevelEnabled:false});geo.rotateX(-Math.PI/2);return geo;}
+function kitFor(body,k){
+  const M=c=>new THREE.MeshLambertMaterial({color:c,flatShading:true});
+  const kit={M,main:M(k.body),trim:M(k.trim),dark:M(0x1b1e28),chrome:M(0xb8c0cf),
+    glow:new THREE.MeshBasicMaterial({color:k.glow||k.trim}),
+    add(geo,mat,x,y,z,rx,ry,rz){const m=new THREE.Mesh(geo,mat);m.position.set(x||0,y||0,z||0);m.rotation.set(rx||0,ry||0,rz||0);body.add(m);return m;},
+    box(w,h,d,mat,x,y,z,rx,ry,rz){return kit.add(new THREE.BoxGeometry(w,h,d),mat,x,y,z,rx,ry,rz);},
+    cyl(rt,rb,h,seg,mat,x,y,z,rx,ry,rz){return kit.add(new THREE.CylinderGeometry(rt,rb,h,seg),mat,x,y,z,rx,ry,rz);},
+    side(pts,w,mat,x,y,z){return kit.add(sideProf(pts,w),mat,x,y,z);},
+    plan(pts,h,mat,x,y,z){return kit.add(planProf(pts,h),mat,x,y,z);},
+    mirror(f){[-1,1].forEach(f);}};
+  return kit;
+}
+/* 카트별 차체 — 스타일 이름은 KARTS의 style 값 */
+const KART_STYLES={
+  /* 레드 썬더: 파이프 프레임이 드러난 오프로드 버기 */
+  buggy(K){
+    K.box(1.5,.14,3.2,K.dark,0,.36,.1);
+    K.side([[.9,.42],[2.55,.42],[2.6,.62],[.9,1.0]],1.3,K.main,0,0,0);
+    K.mirror(s=>{K.box(.42,.46,1.3,K.main,s*.95,.62,.15);
+      K.cyl(.06,.06,3.3,6,K.trim,s*.78,.95,.2,Math.PI/2+.08);
+      K.cyl(.06,.06,1.0,6,K.trim,s*.6,1.25,-1.4,.65);});
+    K.add(new THREE.TorusGeometry(.78,.07,6,14,Math.PI),K.trim,0,1.15,-1.05);
+    K.cyl(.07,.07,2.4,6,K.trim,0,.55,2.55,0,0,Math.PI/2);
+    K.box(1.0,.45,.7,K.dark,0,.7,-1.55);
+    K.mirror(s=>{K.cyl(.11,.11,.8,8,K.chrome,s*.32,1.15,-1.7);K.cyl(.14,.11,.1,8,K.dark,s*.32,1.58,-1.7);});
+    K.mirror(s=>K.box(.35,.12,.12,K.glow,s*.4,.74,2.62));
+  },
+  /* 블루 웨이브: 뒤쪽 파도 마루가 말려 올라가는 차체 */
+  wave(K){
+    K.side([[-1.75,.32],[2.5,.32],[2.62,.52],[1.4,.82],[-.1,.78],[-1.2,1.0],[-1.75,.95]],2.0,K.main,0,0,0);
+    K.mirror(s=>K.side([[-1.85,.4],[.7,.4],[-.1,.85],[-.7,1.45],[-1.25,1.75],[-1.6,1.68],[-1.3,1.45],[-1.55,1.2],[-1.85,.95]],.16,K.trim,s*1.06,0,0));
+    K.mirror(s=>K.side([[.2,.5],[2.3,.5],[2.0,.62],[.4,.62]],.04,K.trim,s*1.01,0,0));
+    K.box(2.2,.1,.5,K.trim,0,.3,2.5);
+    K.mirror(s=>K.box(.3,.1,.08,K.glow,s*.55,.6,2.6));
+  },
+  /* 옐로 비: 둥근 몸통과 줄무늬 꽁무니, 더듬이 */
+  bee(K){
+    const sp=K.add(new THREE.SphereGeometry(1,14,10),K.main,0,.72,.55);sp.scale.set(1.05,.48,1.75);
+    [[.62,.0,K.main],[.7,-.35,K.trim],[.66,-.7,K.main],[.55,-1.05,K.trim],[.4,-1.38,K.main]].forEach(([r,z,m])=>K.cyl(r,r,.36,12,m,0,.85,z-.6,Math.PI/2));
+    K.add(new THREE.ConeGeometry(.3,.6,10),K.trim,0,.85,-2.3,-Math.PI/2);
+    K.mirror(s=>{K.cyl(.035,.035,1.0,5,K.trim,s*.35,1.25,2.0,.9,0,s*-.35);
+      K.add(new THREE.SphereGeometry(.13,8,6),K.trim,s*.52,1.55,2.38);});
+    const wing=new THREE.MeshLambertMaterial({color:0xffffff,transparent:true,opacity:.55,side:THREE.DoubleSide});
+    K.mirror(s=>{const w=K.add(new THREE.CircleGeometry(.75,12),wing,s*.85,1.75,-1.05,-Math.PI/2+.35,0,0);w.scale.set(.6,1.2,1);w.rotation.y=s*.5;});
+  },
+  /* 민트 젯: 동체형 차체와 뒤쪽 제트 엔진 */
+  jet(K){
+    K.cyl(.62,.66,3.2,12,K.main,0,.72,0,Math.PI/2);
+    K.add(new THREE.ConeGeometry(.62,1.1,12),K.main,0,.72,2.15,Math.PI/2);
+    K.cyl(.75,.6,.7,12,K.dark,0,.8,-1.85,Math.PI/2);
+    K.add(new THREE.CircleGeometry(.5,12),K.glow,0,.8,-2.21,0,Math.PI);
+    K.mirror(s=>K.plan([[s*.5,.9],[s*1.75,-.6],[s*1.75,-1.0],[s*.5,-1.0]],.08,K.trim,0,1.0,0));
+    K.side([[-1.9,1.1],[-1.2,1.1],[-1.65,2.0],[-1.95,2.0]],.1,K.trim,0,0,0);
+    K.mirror(s=>K.box(.04,.08,2.4,K.glow,s*.66,.78,.1));
+  },
+  /* 스트리트 핀: 상어 실루엣, 등지느러미와 아가미 */
+  shark(K){
+    K.side([[-1.8,.34],[2.75,.34],[2.3,.78],[1.0,1.0],[-1.2,1.0],[-1.8,.82]],1.9,K.main,0,0,0);
+    K.side([[-1.6,.3],[2.6,.3],[2.4,.5],[-1.5,.5]],2.0,K.trim,0,0,0);
+    K.side([[-1.35,1.0],[-.55,1.0],[-1.05,2.35],[-1.4,2.4],[-1.3,1.6]],.16,K.main,0,0,0);
+    K.side([[-1.8,.6],[-1.6,.6],[-2.4,1.55],[-2.55,1.5],[-2.1,.8],[-2.5,.35],[-2.35,.3]],.14,K.main,0,0,0);
+    K.mirror(s=>{K.plan([[s*.9,.6],[s*1.75,-.35],[s*1.6,-.55],[s*.9,-.1]],.07,K.main,0,.5,0);
+      [0,1,2].forEach(i=>K.box(.04,.32,.06,K.dark,s*.96,.72,1.55-i*.22,0,0,0));
+      K.box(.06,.14,.14,K.dark,s*.96,.62,2.05);});
+  },
+  /* 블레이즈 X: 낮은 쐐기형, 뒤로 뻗은 불꽃 칼날 */
+  blade(K){
+    K.side([[-1.8,.3],[2.85,.3],[2.85,.42],[.2,.95],[-1.8,1.0]],1.9,K.main,0,0,0);
+    K.mirror(s=>{K.plan([[s*.9,1.7],[s*1.6,.2],[s*1.9,-1.9],[s*1.3,-.9],[s*.9,-.4]],.1,K.trim,0,1.0,0);
+      K.plan([[s*.95,.7],[s*1.4,-.3],[s*1.5,-1.6],[s*1.1,-.8]],.08,K.main,0,1.1,0);});
+    [[-.45,.0],[0,.15],[.45,0]].forEach(([x,dy])=>K.add(new THREE.ConeGeometry(.16,.9+dy*2,4),K.trim,x,1.35+dy,-1.75,-.9));
+    K.mirror(s=>K.box(.08,.06,1.6,K.glow,s*.97,.62,1.3,0,0,0));
+    K.box(1.2,.08,.08,K.glow,0,.5,2.86);
+  },
+  /* 오로라 GT: 낮고 긴 GT, 투명 캐노피와 대형 윙 */
+  gt(K){
+    K.side([[-1.9,.3],[2.7,.3],[2.85,.46],[1.6,.72],[-.2,.82],[-1.9,.85]],2.2,K.main,0,0,0);
+    K.mirror(s=>K.side([[-.55,.5],[.6,.5],[.7,.82],[-.4,.86]],.3,K.main,s*1.12,0,0));
+    const glass=new THREE.MeshLambertMaterial({color:k_tint(K),transparent:true,opacity:.32});
+    const cn=K.add(new THREE.SphereGeometry(1,14,10,0,Math.PI*2,0,Math.PI/2),glass,0,.82,-.2);cn.scale.set(.9,1.95,1.4);
+    K.box(2.6,.1,.65,K.trim,0,1.55,-1.85);
+    K.mirror(s=>{K.box(.08,.5,.8,K.trim,s*1.3,1.4,-1.85);K.box(.1,.65,.1,K.dark,s*.6,1.15,-1.8);
+      K.box(.06,.08,2.6,K.glow,s*1.12,.42,.2);});
+    K.box(1.6,.08,.06,K.glow,0,.62,2.8);K.box(1.4,.1,.06,K.glow,0,.78,-1.92);
+  },
+  /* 팬텀 R: 비스듬한 장갑판을 두른 중장갑 카트 */
+  armor(K){
+    K.box(1.8,.55,3.0,K.main,0,.6,-.1);
+    K.side([[1.2,.88],[2.75,.4],[2.95,.4],[2.95,.62],[1.4,1.08]],1.8,K.main,0,0,0);
+    K.side([[2.6,.25],[3.1,.25],[3.1,.5],[2.6,.55]],1.4,K.dark,0,0,0);
+    K.mirror(s=>{K.box(.6,.12,3.3,K.main,s*1.18,1.06,-.05,0,0,s*-.25);
+      K.box(.14,.3,3.3,K.dark,s*.92,.95,-.05);
+      [-1.1,0,1.1].forEach(z=>K.cyl(.07,.07,.1,6,K.trim,s*1.2,1.12,z,0,0,s*-.25));});
+    K.box(1.8,.09,.06,K.glow,0,.92,2.04,0,0,0).rotation.x=-.55;
+    K.box(1.6,.5,.4,K.dark,0,1.05,-1.55);
+    K.mirror(s=>[.25,.6].forEach(x=>K.cyl(.09,.09,.55,6,K.chrome,s*x,1.4,-1.62)));
+    K.box(1.9,.08,.06,K.glow,0,.75,-1.62);
+  },
+  /* 솔라 플레어: 운전석 뒤 태양 고리와 빛살 */
+  sun(K){
+    K.side([[-1.8,.32],[2.6,.32],[2.75,.5],[1.3,.85],[-1.8,.95]],2.0,K.main,0,0,0);
+    K.mirror(s=>K.side([[-1.6,.5],[2.2,.5],[1.6,.66],[-1.6,.72]],.06,K.trim,s*1.02,0,0));
+    K.add(new THREE.TorusGeometry(1.0,.1,6,20),K.main,0,1.65,-1.45);
+    for(let i=0;i<10;i++){const a=i/10*Math.PI*2,r=1.25;
+      K.add(new THREE.ConeGeometry(.12,.4,4),i%2?K.trim:K.main,Math.cos(a)*r,1.65+Math.sin(a)*r,-1.45,0,0,a-Math.PI/2);}
+    K.box(.16,.9,.16,K.dark,0,1.0,-1.45);
+    K.mirror(s=>K.box(.06,.08,2.3,K.glow,s*1.02,.4,.3));
+    K.box(1.5,.08,.06,K.glow,0,.6,2.76);
+  }
+};
+function k_tint(K){return K.glow.color.getHex();}
+function buildKartModel(k){
   const g=new THREE.Group(),body=new THREE.Group();g.add(body);
-  const L=(c)=>new THREE.MeshLambertMaterial({color:c});
-  const main=L(k.body),trim=L(k.trim),dark=L(0x1b1e28);
-  const b=new THREE.Mesh(new THREE.BoxGeometry(2.1,.5,3.1),main);b.position.y=.6;body.add(b);
-  const nose=new THREE.Mesh(new THREE.BoxGeometry(1.7,.35,1.2),main);nose.position.set(0,.55,1.9);nose.rotation.x=.22;body.add(nose);
-  const bumper=new THREE.Mesh(new THREE.BoxGeometry(2.3,.25,.35),trim);bumper.position.set(0,.4,2.45);body.add(bumper);
-  [-1,1].forEach(s=>{const pod=new THREE.Mesh(new THREE.BoxGeometry(.45,.4,2.2),trim);pod.position.set(s*1.2,.55,.1);body.add(pod);});
-  const seat=new THREE.Mesh(new THREE.BoxGeometry(1.2,.9,.3),dark);seat.position.set(0,1.15,-.75);body.add(seat);
-  const torso=new THREE.Mesh(new THREE.CylinderGeometry(.42,.5,.85,10),L(k.suit));torso.position.set(0,1.3,-.35);body.add(torso);
-  const head=new THREE.Mesh(new THREE.SphereGeometry(.56,16,12),L(k.helmet));head.position.set(0,2.05,-.3);body.add(head);
-  const visor=new THREE.Mesh(new THREE.BoxGeometry(.78,.26,.22),new THREE.MeshLambertMaterial({color:0x1d2a44,emissive:0x0a1430}));visor.position.set(0,2.07,.18);body.add(visor);
-  const wheel=new THREE.MeshLambertMaterial({color:0x15161b}),hub=L(k.trim);
+  const K=kitFor(body,k);
+  (KART_STYLES[k.style]||KART_STYLES.buggy)(K);
+  /* 운전자 */
+  K.box(1.1,.85,.28,K.dark,0,1.15,-.78);
+  K.cyl(.42,.5,.85,10,K.M(k.suit),0,1.3,-.35);
+  K.add(new THREE.SphereGeometry(.56,16,12),new THREE.MeshLambertMaterial({color:k.helmet}),0,2.05,-.3);
+  K.box(.78,.26,.22,new THREE.MeshLambertMaterial({color:0x1d2a44,emissive:0x0a1430}),0,2.07,.18);
+  K.box(.9,.12,.12,K.dark,0,1.25,.55);
+  /* 바퀴 */
+  const wheel=new THREE.MeshLambertMaterial({color:0x15161b}),hub=K.trim;
   const wheels=[];
   [[-1.15,1.15],[1.15,1.15],[-1.2,-1.15],[1.2,-1.15]].forEach(([x,z],i)=>{
     const wg=new THREE.Group();wg.position.set(x,.48,z);
@@ -192,18 +309,28 @@ function makeKart(k){
     const h=new THREE.Mesh(new THREE.CylinderGeometry(.18,.18,.52,8),hub);h.rotation.z=Math.PI/2;wg.add(h);
     g.add(wg);wheels.push(wg);
   });
-  const spoiler=new THREE.Mesh(new THREE.BoxGeometry(2.3,.12,.6),trim);spoiler.position.set(0,1.3,-1.7);body.add(spoiler);
-  [-.8,.8].forEach(x=>{const st=new THREE.Mesh(new THREE.BoxGeometry(.12,.55,.12),dark);st.position.set(x,1,-1.65);body.add(st);});
-  const pipe=new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.5,8),L(0x9aa3b5));pipe.rotation.x=Math.PI/2;pipe.position.set(.5,.65,-1.75);body.add(pipe);
-  if(k.fin){const fin=new THREE.Mesh(new THREE.BoxGeometry(.12,.7,1.1),trim);fin.position.set(0,1.75,-1.75);fin.rotation.x=-.25;body.add(fin);}
-  if(k.wide){[-1,1].forEach(s=>{const wp=new THREE.Mesh(new THREE.BoxGeometry(.14,.55,.75),main);wp.position.set(s*1.2,1.35,-1.7);body.add(wp);});
-    const lip=new THREE.Mesh(new THREE.BoxGeometry(2.5,.1,.5),main);lip.position.set(0,.28,2.55);body.add(lip);}
-  if(k.glow){const gm=new THREE.MeshBasicMaterial({color:k.glow});[-1,1].forEach(s=>{const strip=new THREE.Mesh(new THREE.BoxGeometry(.06,.08,2.2),gm);strip.position.set(s*1.44,.42,.1);body.add(strip);});
-    const tail=new THREE.Mesh(new THREE.BoxGeometry(1.4,.1,.06),gm);tail.position.set(0,.72,-1.58);body.add(tail);}
   const sh=new THREE.Mesh(new THREE.CircleGeometry(1.9,20).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.28,depthWrite:false}));sh.position.y=.09;sh.scale.set(.75,1,1);g.add(sh);
   g.scale.setScalar(KSCALE);
-  scene.add(g);
   return {g,body,wheels};
+}
+function makeKart(k){const m=buildKartModel(k);scene.add(m.g);return m;}
+/* 차고·카트 선택용 미리보기 이미지 (한 번만 그려서 저장) */
+const THUMBS={};let thumbR=null,thumbS=null,thumbC=null;
+function kartThumb(k){
+  if(k.id in THUMBS)return THUMBS[k.id];
+  try{
+    if(!thumbR){
+      thumbR=new THREE.WebGLRenderer({canvas:document.createElement('canvas'),antialias:true,alpha:true,preserveDrawingBuffer:true});
+      thumbR.setPixelRatio(1);thumbR.setSize(360,200,false);thumbR.setClearColor(0x000000,0);
+      thumbS=new THREE.Scene();thumbS.add(new THREE.HemisphereLight(0xffffff,0x6a7a8a,.85));
+      const d=new THREE.DirectionalLight(0xffffff,.8);d.position.set(5,9,7);thumbS.add(d);
+      thumbC=new THREE.PerspectiveCamera(28,360/200,.1,100);thumbC.position.set(5.6,3.3,6.4);thumbC.lookAt(0,.95,-.1);
+    }
+    const m=buildKartModel(k);thumbS.add(m.g);thumbR.render(thumbS,thumbC);
+    THUMBS[k.id]=thumbR.domElement.toDataURL('image/png');
+    thumbS.remove(m.g);m.g.traverse(o=>{if(o.geometry)o.geometry.dispose();});
+  }catch(e){THUMBS[k.id]=null;}
+  return THUMBS[k.id];
 }
 
 /* particles */
@@ -699,7 +826,7 @@ function statBars(st){
   const ep=exitParams(st.ext);
   return rows.map(([n,v])=>`<div class="stat"><span>${n}</span><div class="bar"><i style="width:${Math.round(40+(v-1)/.3*60)}%"></i></div></div>`).join('')+`<div class="stat-note">탈출 ${ep.time.toFixed(2)}초 · 미끄럼 속도의 ${Math.round(ep.conv*100)}%를 가속으로 전환</div>`;
 }
-function swatch(k){return `<div class="sw" style="background:linear-gradient(120deg,${hex(k.body)} 0 66%,${hex(k.trim)} 66% 82%,${hex(k.glow||k.helmet)} 82% 100%)"></div>`;}
+function swatch(k){const t=kartThumb(k);return `<div class="sw${t?' sw3d':''}" style="--kc:${hex(k.body)};--kt:${hex(k.trim)}">${t?`<img src="${t}" alt="">`:''}</div>`;}
 function buildMenu(){
   $('wallet').innerHTML=`<small>보유 포인트</small>${save.points.toLocaleString()} P`;
   const kc=$('karts');kc.innerHTML='';
