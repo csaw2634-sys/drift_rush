@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>드리프트 러시</title>
+<meta name="description" content="드리프트로 게이지를 채우고 부스터로 질주하는 브라우저 카트 레이싱 게임">
+<meta property="og:title" content="드리프트 러시">
+<meta property="og:description" content="코너는 드리프트로, 직선은 부스터로. 브라우저에서 바로 즐기는 카트 레이싱">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="app">
+  <canvas id="gl"></canvas>
+  <div id="flash"></div>
+  <div id="hud">
+    <div class="tl">
+      <div class="pill disp" id="lap">LAP 1<small>/ 3</small></div>
+      <div class="pill" id="time">00:00.00</div>
+      <div class="pill" id="board"></div>
+    </div>
+    <div id="rank" class="disp"><b>1</b><span>/ 4위</span></div>
+    <canvas id="mini" width="300" height="300"></canvas>
+    <div id="speed" class="disp"><b>0</b><span>KM/H</span></div>
+    <div id="boostbox">
+      <div class="slot" id="s0"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="#fff"/></svg></div>
+      <div id="gauge"><i></i></div>
+      <div class="slot" id="s1"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z" fill="#fff"/></svg></div>
+    </div>
+    <div id="msg" class="disp"></div>
+    <div id="count" class="disp"></div>
+    <button id="quit" type="button">그만하기</button>
+  </div>
+  <div id="touch">
+    <button class="tbtn" id="tL" type="button" aria-label="왼쪽">◀</button>
+    <button class="tbtn" id="tR" type="button" aria-label="오른쪽">▶</button>
+    <button class="tbtn disp" id="tDrift" type="button">드리프트</button>
+    <button class="tbtn disp" id="tBoost" type="button">부스터</button>
+    <button class="tbtn" id="tBrake" type="button">브레이크</button>
+  </div>
+
+  <div class="screen on" id="menu">
+    <div class="card">
+      <div class="title"><h1 class="disp">드리프트 러시</h1><div class="streak"></div></div>
+      <div class="tabs" role="tablist">
+        <button class="tab disp" role="tab" id="tabRaceBtn" aria-selected="true" type="button">레이스</button>
+        <button class="tab disp" role="tab" id="tabGarageBtn" aria-selected="false" type="button">차고</button>
+        <div class="wallet disp" id="wallet"><small>보유 포인트</small>0 P</div>
+      </div>
+      <div id="tabRace">
+        <p class="lead">코너에서 드리프트로 게이지를 채우고, 모은 부스터로 직선을 찢어라. 4차선 서킷에서 상대 카트 3대와 겨루는 레이스야.</p>
+        <div class="label">내 카트</div>
+        <div class="karts" id="karts"></div>
+        <div class="label">바퀴 수</div>
+        <div class="row" id="laps"></div>
+        <div class="label">상대 실력</div>
+        <div class="row" id="diff"></div>
+        <button class="go disp" id="start" type="button">레이스 시작</button>
+        <p class="rule">완주하면 순위에 따라 포인트를 받아. 바퀴당 1위 100P, 2위 70P, 3위 45P, 4위 25P이고, 상대 실력이 높을수록 보너스가 붙어. 모은 포인트로 차고에서 더 빠른 카트를 살 수 있어.</p>
+        <div class="keys">
+          <div><kbd>↑</kbd><kbd>↓</kbd> 가속 · 브레이크</div>
+          <div><kbd>←</kbd><kbd>→</kbd> 방향</div>
+          <div><kbd>Shift</kbd> 드리프트 시작, 한 번 더 누르면 종료</div>
+          <div><kbd>Space</kbd> 부스터 사용</div>
+          <div><kbd>R</kbd> 트랙 가운데로 복귀</div>
+          <div><kbd>M</kbd> 소리 켜기·끄기</div>
+        </div>
+        <div class="best" id="best"></div>
+      </div>
+      <div id="tabGarage" hidden>
+        <p class="lead" style="margin-bottom:0">비싼 카트일수록 최고 속도, 가속, 핸들링, 드리프트 충전이 좋아지고, 드리프트에서 빠져나올 때 더 부드럽게 속도를 이어가.</p>
+        <div class="garage" id="garage"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="screen" id="result">
+    <div class="card">
+      <div class="label" id="resLabel">레이스 결과</div>
+      <div class="res-rank disp" id="resRank">1위</div>
+      <table class="res-table" id="resTable"></table>
+      <div class="best" id="resBest"></div>
+      <div class="earn disp" id="resEarn"></div>
+      <div class="btns"><button class="p disp" id="again" type="button">다시 달리기</button><button class="s disp" id="toMenu" type="button">처음 화면</button></div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
