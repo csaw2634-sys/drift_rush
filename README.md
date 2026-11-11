@@ -112,5 +112,6 @@ npm start
 - **한 방 최대 인원:** `server.js`의 `MAX_PLAYERS`
 - **컴퓨터 이름과 카트:** `server.js`의 `AI_NAMES`, `AI_KARTS`
 - **카트 가격과 성능:** `public/js/game.js`의 `KARTS`, `EXT`
+- **카트 차체 모양:** `public/js/game.js`의 `KART_STYLES` (카트마다 `KARTS`의 `style` 값으로 연결)
 - **순위별 포인트:** `public/js/game.js`의 `RANK_P`
 - **최고 속도 등 물리:** `public/js/game.js`의 `const ACCEL=30,MAXV=58,...`
