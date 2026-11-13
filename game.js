@@ -23,7 +23,7 @@ const STARTERS=KARTS.filter(k=>k.price===0);
 const kartById=id=>KARTS.find(k=>k.id===id)||KARTS[0];
 const opt={laps:2,diff:1};
 const DIFF=[{n:'느긋하게',m:.86,bonus:.8},{n:'보통',m:.94,bonus:1},{n:'빡세게',m:1.0,bonus:1.3}];
-const RANK_P=[100,80,65,50,40,30,20,10];
+const RANK_P=[1000000,1000000,1000000,50,40,30,20,10];
 function store(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){}}
 function load(k){try{const v=localStorage.getItem(k);return v?JSON.parse(v):null;}catch(e){return null;}}
 {const o=load('drift-rush-opt');if(o){if(o.laps)opt.laps=o.laps;if(o.diff!=null)opt.diff=o.diff;}}
